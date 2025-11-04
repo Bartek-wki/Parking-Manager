@@ -1,9 +1,9 @@
 # Dokument wymagań produktu (PRD) - Parking Manager
 
 ## 1. Przegląd produktu
-Parking Manager to webowa aplikacja administracyjna dla właściciela parkingów, umożliwiająca zarządzanie wieloma lokalizacjami (parkingami), miejscami parkingowymi, klientami oraz rezerwacjami w dwóch trybach: stałym i okresowym (dziennym). System zapewnia walidację dostępności miejsc, miesięczny widok kalendarza rezerwacji, dynamiczne cenniki (wyjątki cenowe per lokalizacja), ręczne oznaczanie płatności, historię zmian statusów płatności oraz automatyczne powiadomienia e-mail z mechanizmem ponownych prób. Uwierzytelnienie sesyjne wbudowane w Laravel i w MVP wspiera jednego użytkownika (właściciela). Codzienny mechanizm CRON wspiera automatyczne aktualizacje statusów płatności.
+Parking Manager to webowa aplikacja administracyjna dla właściciela parkingów, umożliwiająca zarządzanie wieloma lokalizacjami (parkingami), miejscami parkingowymi, klientami oraz rezerwacjami w dwóch trybach: stałym i okresowym (dziennym). System zapewnia walidację dostępności miejsc, miesięczny widok kalendarza rezerwacji, dynamiczne cenniki (wyjątki cenowe per lokalizacja), ręczne oznaczanie płatności, historię zmian statusów płatności oraz automatyczne powiadomienia e-mail.
 
-Zakres MVP obejmuje jeden typ roli (właściciel), rezerwacje dzienne (bez godzin), brak panelu klienta i brak integracji z płatnościami online. System loguje próby wysyłek e-mail i utrzymuje logi przez 30 dni. Kalendarz ograniczony jest do widoku miesięcznego.
+Zakres MVP obejmuje jeden typ roli (właściciel), rezerwacje dzienne (bez godzin), brak panelu klienta i brak integracji z płatnościami online. System loguje nieudane próby wysyłek e-mail. Kalendarz ograniczony jest do widoku miesięcznego.
 
 ## 2. Problem użytkownika
 Właściciel parkingów dotychczas prowadzi ręczne zapisy w arkuszu, co powoduje:
@@ -15,10 +15,9 @@ Właściciel parkingów dotychczas prowadzi ręczne zapisy w arkuszu, co powoduj
 Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, przyspieszenie obsługi i zapewnienie pełnej widoczności rezerwacji oraz płatności w jednym narzędziu.
 
 ## 3. Wymagania funkcjonalne
-3.1 Autoryzacja i dostęp
-- Logowanie właściciela do panelu admina; wszystkie widoki administracyjne tylko po zalogowaniu.
-- Sesja utrzymywana po stronie klienta; dostęp do API zabezpieczony tokenem.
-- Brak rejestracji i resetu hasła w MVP; jeden użytkownik systemu.
+3.1 Podstawowy system uwierzytelniania i kont użytkowników:
+- Rejestracja i logowanie.
+- Możliwość usunięcia konta i powiązanych danych na życzenie.
 
 3.2 Lokalizacje
 - Obsługa wielu lokalizacji: każda lokalizacja posiada własne miejsca, klientów przypisanych przez rezerwacje, rezerwacje i konfiguracje cen.
@@ -56,14 +55,12 @@ Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, prz
 - Wyjątki cenowe tylko dla rezerwacji okresowych. Dla rezerwacji stałych obowiązuje stała, miesięczna stawka zdefiniowana w panelu administratora dla wybranej lokalizacji.
 
 3.8 Przypomnienia i automatyzacja płatności
-- CRON uruchamiany codziennie aktualizuje statusy płatności zgodnie z miesięcznym cyklem rozliczeniowym.
+- codzienne aktualizacje statusów płatności zgodnie z miesięcznym cyklem rozliczeniowym.
 - Automatyczne e-maile: przypomnienie (−3 dni), zaległość (po terminie), potwierdzenie rezerwacji — oddzielne szablony dla właściciela i klienta, treści stałe w MVP.
-- Retry logic dla e-maili: do 3 prób co 12 godzin; rejestrowanie wyników w bazie i podgląd w panelu.
 - Wysyłka do właściciela zawsze; do klienta, jeśli posiada e-mail.
 
 3.9 Logi i retencja
-- Rejestrowanie wysyłek e-mail: status, liczba prób, czas, typ powiadomienia, odbiorcy, komunikat błędu (jeśli wystąpił).
-- Retencja logów: 30 dni.
+- Rejestrowanie wysyłek e-mail: status, czas, typ powiadomienia, odbiorcy, komunikat błędu (jeśli wystąpił).
 
 3.10 Ograniczenia i założenia danych
 - Rezerwacje dzienne (bez godzin); daty traktowane jako całe dni w strefie czasowej systemu.
@@ -71,9 +68,8 @@ Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, prz
 - Brak faktur/PDF i integracji płatności online w MVP.
 
 ## 4. Granice produktu
-- Tylko jeden użytkownik (właściciel) w MVP; brak współpracowników i ról.
+- Brak ról i współdzielenia danych między użytkownikami. Każdy uzytkownik jest jedynym właścicielem swoich parkingów, rezerwacji itp.
 - Brak panelu klienta (logowanie, wgląd w swoje rezerwacje).
-- Brak resetu hasła przez e-mail.
 - Brak raportowania i zaawansowanych raportów finansowych.
 - Brak kopii zapasowych (backupów) w MVP.
 - Brak integracji płatności online i automatycznych rozliczeń miesięcznych.
@@ -82,21 +78,21 @@ Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, prz
 - Rezerwacje tylko dzienne; brak godzin i złożonych reguł cenowych (np. inne ceny w dni tygodnia, rabaty per klient).
 
 ## 5. Historyjki użytkowników
-US-001
-Tytuł: Logowanie właściciela (sesyjne)
-Opis: Jako właściciel chcę zalogować się do panelu, aby uzyskać dostęp do zarządzania.
+ID: US-001
+Tytuł: Rejestracja konta
+Opis: Jako nowy użytkownik chcę się zarejestrować, aby mieć dostęp do włanych lokalizacji (parkingów) i móc korzystać z dodawania rezerwacji.
 Kryteria akceptacji:
-- Po podaniu poprawnych danych (login/hasło) zostaje utworzona sesja serwerowa, otrzymuję cookie sesyjne i uzyskuję dostęp do panelu.
-- Próba wejścia na stronę administracyjną bez aktywnej sesji (lub z wygaśniętą sesją) skutkuje automatycznym przekierowaniem do strony logowania.
-- Kliknięcie "Wyloguj" kończy (unieważnia) sesję po stronie serwera, usuwa cookie sesyjne i przekierowuje mnie do strony logowania.
+- Formularz rejestracyjny zawiera pola na adres e-mail i hasło.
+- Po poprawnym wypełnieniu formularza i weryfikacji danych konto jest aktywowane.
+- Użytkownik otrzymuje potwierdzenie pomyślnej rejestracji i zostaje zalogowany.
 
-US-002
-Tytuł: Bezpieczny dostęp do API
-Opis: Jako właściciel chcę, aby wszystkie endpointy admin wymagały ważnego JWT.
+ID: US-002
+Tytuł: Logowanie do aplikacji
+Opis: Jako zarejestrowany użytkownik chcę móc się zalogować, aby mieć dostęp do moich rezerwacji.
 Kryteria akceptacji:
-- Żądania bez nagłówka autoryzacji odrzucane z 401.
-- Żądania z niepoprawnym/wygaśniętym tokenem odrzucane z 401.
-- Token jest weryfikowany przy każdym żądaniu.
+- Po podaniu prawidłowych danych logowania użytkownik zostaje przekierowany do kalendarza.
+- Błędne dane logowania wyświetlają komunikat o nieprawidłowych danych.
+- Dane dotyczące logowania przechowywane są w bezpieczny sposób.
 
 US-003
 Tytuł: Przełączanie kontekstu lokalizacji
@@ -235,12 +231,10 @@ Kryteria akceptacji:
 - Przy braku e-maila klienta wysyłka tylko do właściciela.
 
 US-071
-Tytuł: Retry logic i logowanie wysyłek e-mail
-Opis: Jako właściciel chcę mieć pewność prób ponownej wysyłki i wgląd w logi.
+Tytuł: logowanie wysyłek e-mail
+Opis: Jako właściciel chcę mieć wgląd w logi.
 Kryteria akceptacji:
-- Do 3 prób co 1 godzinę przy błędach.
-- Log zawiera status, liczbę prób, czas, typ, odbiorców, błąd.
-- Logi usuwane po 30 dniach.
+- Log zawiera status, czas, typ, odbiorców, błąd.
 
 US-072
 Tytuł: Podgląd logów e-mail w panelu
@@ -250,7 +244,7 @@ Kryteria akceptacji:
 - Dostępny tylko po zalogowaniu.
 
 US-080
-Tytuł: Codzienny CRON aktualizujący statusy płatności
+Tytuł: Codzienna aktualizacja statusó płatności
 Opis: Jako właściciel chcę, aby statusy płatności aktualizowały się automatycznie zgodnie z miesięcznym cyklem.
 Kryteria akceptacji:
 - Harmonogram uruchamia się raz dziennie.
@@ -308,13 +302,6 @@ Tytuł: Wymuszenie wyboru lokalizacji
 Opis: Jako właściciel chcę uniknąć tworzenia danych bez kontekstu lokalizacji.
 Kryteria akceptacji:
 - Tworzenie miejsc, klientów i rezerwacji wymaga aktywnej lokalizacji.
-
-US-098
-Tytuł: Retencja logów 30 dni
-Opis: Jako właściciel chcę, aby logi nie rosły bez kontroli.
-Kryteria akceptacji:
-- Mechanizm kasuje logi starsze niż 30 dni.
-- Widok nie pokazuje starszych wpisów.
 
 US-099
 Tytuł: Kolorystyka rezerwacji kończących się w 3 dni
