@@ -14,7 +14,10 @@ export const getLocationList = async (supabase: SupabaseClient): Promise<Locatio
   return data;
 };
 
-export const createLocation = async (supabase: SupabaseClient, location: CreateLocationCmd): Promise<LocationDTO> => {
+export const createLocation = async (
+  supabase: SupabaseClient,
+  location: CreateLocationCmd
+): Promise<LocationDTO> => {
   const { data, error } = await supabase
     .from("locations")
     .insert({ ...location, user_id: DEFAULT_USER_ID })
