@@ -120,7 +120,10 @@ export type CreateBookingCmd = Pick<
  * Payload for updating an existing booking.
  * Source: /bookings/:id (PATCH)
  */
-export type UpdateBookingCmd = Pick<Updates<"bookings">, "payment_status" | "status" | "end_date">;
+export type UpdateBookingCmd = Pick<
+  Updates<"bookings">,
+  "payment_status" | "status" | "end_date" | "start_date"
+>;
 
 /**
  * Payload for calculating booking cost and availability preview.
@@ -129,7 +132,9 @@ export type UpdateBookingCmd = Pick<Updates<"bookings">, "payment_status" | "sta
 export type PreviewBookingCmd = Pick<
   Inserts<"bookings">,
   "location_id" | "spot_id" | "start_date" | "end_date" | "type"
->;
+> & {
+  exclude_booking_id?: string;
+};
 
 /**
  * Response structure for the booking preview calculation.
