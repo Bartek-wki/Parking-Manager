@@ -213,7 +213,24 @@
 
 ### 2.5. Pricing Exceptions
 
-**1. Create Exception**
+**1. List Exceptions**
+- **Method:** `GET`
+- **URL:** `/locations/:location_id/pricing`
+- **Description:** Returns a list of pricing exceptions for a specific location.
+- **Response:**
+  ```json
+  [
+    {
+      "id": "uuid",
+      "start_date": "2023-12-24",
+      "end_date": "2023-12-26",
+      "percentage_change": 50.00,
+      "description": "Christmas Surcharge"
+    }
+  ]
+  ```
+
+**2. Create Exception**
 - **Method:** `POST`
 - **URL:** `/locations/:location_id/pricing`
 - **Description:** Adds a temporary price change (US-050).
@@ -226,6 +243,28 @@
     "description": "Christmas Surcharge"
   }
   ```
+- **Success:** `201 Created`
+
+**3. Update Exception**
+- **Method:** `PUT`
+- **URL:** `/locations/:location_id/pricing/:id`
+- **Description:** Updates an existing exception. Allows changing dates (including early termination), percentage, or description.
+- **Body:**
+  ```json
+  {
+    "start_date": "2023-12-24",
+    "end_date": "2023-12-25", // Changed end date
+    "percentage_change": 40.00,
+    "description": "Updated Surcharge"
+  }
+  ```
+- **Success:** `200 OK`
+
+**4. Delete Exception**
+- **Method:** `DELETE`
+- **URL:** `/locations/:location_id/pricing/:id`
+- **Description:** Permanently removes a pricing exception.
+- **Success:** `204 No Content`
 
 ### 2.6. Logs & History
 

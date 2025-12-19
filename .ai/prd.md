@@ -194,12 +194,16 @@ Kryteria akceptacji:
 - Kliknięcie w rezerwację otwiera szczegóły.
 
 US-050
-Tytuł: Dodanie wyjątku cenowego per lokalizacja
-Opis: Jako właściciel chcę dodać okresowy wyjątek cenowy z procentową zmianą.
+Tytuł: Zarządzanie wyjątkami cenowymi (dodawanie, edycja, usuwanie)
+Opis: Jako właściciel chcę w pełni zarządzać wyjątkami cenowymi: dodawać je, edytować, kończyć wcześniej lub usuwać.
 Kryteria akceptacji:
-- Wymagane: zakres dat, procent zmiany (+/−), opcjonalny opis.
-- Nałożone wyjątki rozstrzygane priorytetem ostatniego wpisu.
-- Wyjątek wpływa na wyliczanie kosztu nowych rezerwacji w podglądzie. Dla rezerwacji trwajacych nie przeliczamy nowych kosztów.
+- Dodawanie: Wymagane podanie zakresu dat, procentu zmiany (+/−) oraz opcjonalnego opisu.
+- Edycja: Możliwość zmiany dat, procentu oraz opisu istniejącego wyjątku.
+- Usuwanie: Możliwość trwałego usunięcia wyjątku z listy.
+- Zakończenie: Możliwość edycji daty końcowej na wcześniejszą (skrócenie czasu trwania).
+- Niezmienność historyczna: Żadna z operacji (edycja, usunięcie, zakończenie) nie wpływa na cenę rezerwacji, które zostały już utworzone i wykorzystały dany wyjątek. Cena rezerwacji jest utrwalana w momencie jej zapisu.
+- Priorytety: W przypadku nakładania się wyjątków, system stosuje wyjątek dodany/zmodyfikowany jako ostatni (priorytet nowszego wpisu).
+- Zastosowanie: Zmiany w wyjątkach są uwzględniane tylko przy wyliczaniu kosztu dla nowych rezerwacji lub podczas edycji istniejących rezerwacji (wymuszającej przeliczenie).
 
 US-051
 Tytuł: Podgląd wyliczenia kosztu w formularzu rezerwacji
@@ -244,7 +248,7 @@ Kryteria akceptacji:
 - Dostępny tylko po zalogowaniu.
 
 US-080
-Tytuł: Codzienna aktualizacja statusó płatności
+Tytuł: Codzienna aktualizacja statusów płatności
 Opis: Jako właściciel chcę, aby statusy płatności aktualizowały się automatycznie zgodnie z miesięcznym cyklem.
 Kryteria akceptacji:
 - Harmonogram uruchamia się raz dziennie.

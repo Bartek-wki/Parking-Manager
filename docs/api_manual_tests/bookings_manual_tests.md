@@ -2,8 +2,6 @@
 
 ## Setup Environment Variables
 
-Replace the values below with actual UUIDs from your database.
-
 ```bash
 # Base URL
 API_URL="http://localhost:3000/api"
@@ -24,10 +22,10 @@ curl -X POST "http://localhost:3000/api/bookings" \
   -H "Content-Type: application/json" \
   -d '{
     "location_id": "'dc236458-1d55-4796-a3b9-6f92e48b1d1c'",
-    "spot_id": "'97d3b972-8ee6-474d-869f-0af45f0a199e'",
+    "spot_id": "'85e62792-9985-42c2-af7f-26917dc57431'",
     "client_id": "'e339809b-3bc0-4d33-aba6-96c030953912'",
-    "start_date": "2026-01-01",
-    "end_date": "2026-01-15",
+    "start_date": "2026-02-17",
+    "end_date": "2026-02-20",
     "type": "periodic"
   }'
 ```
