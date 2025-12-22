@@ -4,6 +4,8 @@ Frontend - Astro z React dla komponentów interaktywnych:
 - TypeScript 5
 - Tailwind 4
 - Shadcn/ui
+- Tanstack Query
+- Tanstack Form
 
 Backend i Bazadanych:
 Supabase

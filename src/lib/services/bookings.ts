@@ -234,3 +234,15 @@ export async function updateBooking(
 
   if (error) throw error;
 }
+
+export async function listPaymentHistoryByBookingId(supabase: SupabaseClient, bookingId: string) {
+  const { data, error } = await supabase
+    .from("payment_history")
+    .select("*")
+    .eq("booking_id", bookingId)
+    .order("changed_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data || [];
+}

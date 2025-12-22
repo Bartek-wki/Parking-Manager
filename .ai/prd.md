@@ -20,8 +20,9 @@ Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, prz
 - Możliwość usunięcia konta i powiązanych danych na życzenie.
 
 3.2 Lokalizacje
-- Obsługa wielu lokalizacji: każda lokalizacja posiada własne miejsca, klientów przypisanych przez rezerwacje, rezerwacje i konfiguracje cen.
-- Przełącznik kontekstu lokalizacji w panelu głównym oraz filtr „lokalizacja” we wszystkich listach.
+- Obsługa wielu lokalizacji: każda lokalizacja posiada własne miejsca, rezerwacje i konfiguracje cen (wyjątki cenowe).
+- Klienci są **globalni** dla właściciela (nie należą bezpośrednio do lokalizacji), a powiązanie klienta z lokalizacją wynika pośrednio z rezerwacji.
+- Przełącznik kontekstu lokalizacji w panelu głównym oraz filtr „lokalizacja” we wszystkich listach **kontekstowych** (miejsca, rezerwacje, logi e-mail).
 - Konfiguracja domyślnej ceny per lokalizacja: cena dzienna i miesięczna.
 
 3.3 Miejsca parkingowe
@@ -31,6 +32,7 @@ Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, prz
 
 3.4 Klienci
 - Dodawanie i edycja klienta: imię, nazwisko, e-mail, telefon
+- Klienci są globalni (w obrębie konta właściciela) i mogą być wykorzystywani w rezerwacjach w dowolnej lokalizacji.
 - Powiązanie klientów z rezerwacjami i historią płatności rezerwacji.
 
 3.5 Rezerwacje (stałe i okresowe)
@@ -99,7 +101,7 @@ Tytuł: Przełączanie kontekstu lokalizacji
 Opis: Jako właściciel chcę przełączać aktywną lokalizację, aby zarządzać jej danymi.
 Kryteria akceptacji:
 - Przełącznik lokalizacji dostępny w nagłówku panelu.
-- Listy miejsc, klientów, rezerwacji i kalendarz filtrują dane wg wybranej lokalizacji.
+- Listy miejsc, rezerwacji, logów e-mail oraz kalendarz filtrują dane wg wybranej lokalizacji.
 - Zmiana lokalizacji odświeża widok kalendarza i listy.
 
 US-004
@@ -286,7 +288,7 @@ US-094
 Tytuł: Nawigacja i filtracja list po lokalizacji
 Opis: Jako właściciel chcę filtrować listy według lokalizacji.
 Kryteria akceptacji:
-- Wszystkie listy (miejsca, klienci, rezerwacje, logi e-mail) respektują filtr lokalizacji.
+- Wszystkie listy **kontekstowe** (miejsca, rezerwacje, logi e-mail) respektują filtr lokalizacji.
 
 US-095
 Tytuł: Potwierdzenie rezerwacji e-mailem

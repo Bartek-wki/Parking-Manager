@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import Header from "../components/Header.astro";
 
 interface Props {
   title?: string;
@@ -17,16 +18,18 @@ const { title = "10x Astro Starter" } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body>
-    <slot />
+  <body class="min-h-screen bg-background font-sans antialiased">
+    <Header />
+    <main class="container mx-auto py-6 px-4">
+      <slot />
+    </main>
   </body>
 </html>
 
 <style>
+  /* Global styles moved to global.css mostly, but ensuring height */
   html,
   body {
-    margin: 0;
-    width: 100%;
     height: 100%;
   }
 </style>

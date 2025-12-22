@@ -1,0 +1,31 @@
+---
+import { LocationSwitcher } from "@/components/locations/LocationSwitcher";
+
+const { pathname } = Astro.url;
+// Extract locationId from URL if present: /locations/[locationId]/...
+// Example: /locations/123-456/settings
+const segments = pathname.split("/").filter(Boolean); // filter empty strings from leading/trailing slashes
+const locationsIndex = segments.indexOf("locations");
+const currentLocationId =
+  locationsIndex !== -1 && segments.length > locationsIndex + 1
+    ? segments[locationsIndex + 1]
+    : undefined;
+---
+
+<header class="border-b bg-background">
+  <div class="container mx-auto flex h-16 items-center px-4">
+    <div class="mr-4 hidden md:flex">
+      <a href="/" class="mr-6 flex items-center space-x-2">
+        <span class="hidden font-bold sm:inline-block">Parking Manager</span>
+      </a>
+    </div>
+    <div class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+      <div class="w-full flex-1 md:w-auto md:flex-none">
+        <LocationSwitcher client:load currentLocationId={currentLocationId} />
+      </div>
+      <nav class="flex items-center">
+        <!-- Placeholder for user menu -->
+      </nav>
+    </div>
+  </div>
+</header>
