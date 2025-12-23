@@ -1,0 +1,8 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import { ClientsManager } from "@/components/clients/ClientsManager";
+---
+
+<AppLayout title="Klienci">
+  <ClientsManager client:load />
+</AppLayout>

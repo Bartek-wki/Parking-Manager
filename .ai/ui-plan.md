@@ -55,12 +55,12 @@ Aplikacja wspiera tryb jasny i ciemny (Dark Mode), jest w pełni responsywna i k
 *   **Cel:** Konfiguracja parametrów konkretnego parkingu.
 *   **Struktura:** Widok oparty na zakładkach (`Tabs`).
     *   **Tab 1: Ogólne:** Nazwa, Ceny domyślne (Dziennie/Miesięcznie).
-    *   **Tab 2: Miejsca:** Lista miejsc (P1, P2...), Status (Aktywne/Nieaktywne), Akcje (Edytuj, Usuń).
+    *   **Tab 2: Miejsca:** Lista miejsc (P1, P2...), Status (Aktywne/Nieaktywne), Akcje (Edytuj). Brak usuwania — miejsce można dezaktywować/reaktywować.
     *   **Tab 3: Cennik (Wyjątki):** Tabela wyjątków cenowych (Daty, % zmiany, Opis, Akcje: Edytuj, Usuń).
-*   **Kluczowe komponenty:** `Tabs`, `Table` (z sortowaniem), `Switch` (Status miejsca), `Badge` (Status wyjątku: Aktywny/Planowany), `AlertDialog` (Usuwanie).
+*   **Kluczowe komponenty:** `Tabs`, `Table` (z sortowaniem), `Switch` (Status miejsca), `Badge` (zmiana %, np. +20%), `StatusBadge` (Status wyjątku: Aktywny/Przyszły), `AlertDialog` (Usuwanie wyjątku).
 *   **UX:**
     *   "Natural Sort Order" dla miejsc (P1, P2, P10).
-    *   Zapobieganie usunięciu miejsca/wyjątku, jeśli istnieją konflikty (backend validation -> toast error).
+    *   Zapobieganie dezaktywacji miejsca lub usunięciu wyjątku, jeśli istnieją konflikty (backend validation -> toast error).
 
 ### 2.5. Klienci (Globalny)
 *   **Ścieżka:** `/clients`
@@ -112,7 +112,7 @@ Aplikacja wspiera tryb jasny i ciemny (Dark Mode), jest w pełni responsywna i k
 3.  **Zapis:** Klika "Zapisz zmiany".
 4.  **Wynik:** Toast wyświetla potwierdzenie "Ustawienia zaktualizowane". Jeśli zmieniono nazwę, aktualizuje się ona natychmiast w nagłówku i przełączniku lokalizacji (re-fetch danych / odświeżenie widoku na podstawie URL).
 
-### 3.5. Scenariusz: Zarządzanie miejscami parkingowymi (CRUD)
+### 3.5. Scenariusz: Zarządzanie miejscami parkingowymi (Create/Update + aktywacja/dezaktywacja)
 1.  **Nawigacja:** Użytkownik przechodzi do zakładki "Miejsca" w Ustawieniach.
 2.  **Dodawanie:**
     *   Klika "+ Dodaj miejsce".
@@ -120,11 +120,8 @@ Aplikacja wspiera tryb jasny i ciemny (Dark Mode), jest w pełni responsywna i k
     *   Zatwierdza Enterem lub przyciskiem. Nowe miejsce pojawia się na liście.
 3.  **Edycja:** Kliknięcie ikony ołówka przy miejscu pozwala na szybką zmianę jego nazwy.
 4.  **Dezaktywacja:** Przełączenie switcha "Aktywne" przy miejscu wyłącza możliwość jego rezerwacji w przyszłości.
-5.  **Usuwanie:**
-    *   Klika ikonę kosza.
-    *   System sprawdza powiązania (czy są aktywne rezerwacje).
-    *   Jeśli brak konfliktów -> `AlertDialog` prosi o potwierdzenie -> Miejsce znika.
-    *   Jeśli konflikt -> Toast error: "Nie można usunąć miejsca z aktywnymi rezerwacjami".
+5.  **Reaktywacja:** Ponowne przełączenie switcha przywraca możliwość rezerwacji miejsca.
+6.  **Konflikt domenowy:** Jeśli backend odrzuci zmianę (np. aktywne rezerwacje blokują dezaktywację), UI pokazuje Toast error z komunikatem użytkowym.
 
 ### 3.6. Scenariusz: Edycja i usuwanie wyjątków cenowych
 1.  **Nawigacja:** Użytkownik znajduje się w "Ustawieniach" -> zakładka "Cennik".

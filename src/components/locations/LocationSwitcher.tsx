@@ -24,8 +24,13 @@ interface LocationSwitcherProps {
 function LocationSwitcherBase({ currentLocationId }: LocationSwitcherProps) {
   const [open, setOpen] = React.useState(false);
   const [showNewLocationDialog, setShowNewLocationDialog] = React.useState(false);
+  const [isClient, setIsClient] = React.useState(false);
 
-  const { data: locations = [], isLoading, isError } = useLocations();
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const { data: locations = [], isPending, isError } = useLocations();
 
   const selectedLocation = locations.find((item) => item.id === currentLocationId);
 
@@ -33,8 +38,22 @@ function LocationSwitcherBase({ currentLocationId }: LocationSwitcherProps) {
     setOpen(false);
     // Save to localStorage for auto-redirect on homepage
     localStorage.setItem("lastVisitedLocationId", locationId);
-    // Navigate to the selected location
-    window.location.href = `/locations/${locationId}/settings`;
+
+    // Calculate new path
+    const path = window.location.pathname;
+    const parts = path.split("/");
+    const locationsIndex = parts.indexOf("locations");
+
+    if (locationsIndex !== -1 && parts.length > locationsIndex + 1) {
+      // We are in a location context, replace the ID
+      const newParts = [...parts];
+      newParts[locationsIndex + 1] = locationId;
+      window.location.assign(newParts.join("/"));
+    } else {
+      // We are not in a location context, go to default view (calendar or settings)
+      // Plan mentions calendar as first item in context section
+      window.location.assign(`/locations/${locationId}/calendar`);
+    }
   };
 
   return (
@@ -46,13 +65,9 @@ function LocationSwitcherBase({ currentLocationId }: LocationSwitcherProps) {
             role="combobox"
             aria-expanded={open}
             className="w-[250px] justify-between"
-            disabled={isLoading || isError}
+            disabled={!isClient || isPending || isError}
           >
-            {isLoading
-              ? "Ładowanie..."
-              : selectedLocation
-                ? selectedLocation.name
-                : "Wybierz parking..."}
+            {isClient && selectedLocation ? selectedLocation.name : "Wybierz parking..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

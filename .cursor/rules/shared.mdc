@@ -29,6 +29,8 @@ When introducing changes to the project, always follow the directory structure b
 - `./src/components` - Client-side components written in Astro (static) and React (dynamic)
 - `./src/components/ui` - Client-side components from Shadcn/ui
 - `./src/lib` - Services and helpers 
+- `./src/lib/api` - Client-side API fetchers
+- `./src/lib/queries` - React Query hooks (queries & mutations)
 - `./src/assets` - static internal assets
 - `./public` - public assets
 
@@ -47,3 +49,31 @@ When modifying the directory structure, always update this section.
 - Use guard clauses to handle preconditions and invalid states early.
 - Implement proper error logging and user-friendly error messages.
 - Consider using custom error types or error factories for consistent error handling.
+
+### API & State Management
+
+#### `src/lib/api` (Fetchers)
+- Contains raw async functions for making HTTP requests to the backend API.
+- Should return typed Promises using DTOs from `@/types`.
+- **MANDATORY**: Use `handleResponse` from `client-utils.ts` for consistent error handling (`ApiError`) and response parsing.
+  ```typescript
+  import { handleResponse } from "./client-utils";
+  
+  export async function fetchData() {
+    const res = await fetch("/api/endpoint");
+    return handleResponse<DataType>(res);
+  }
+  ```
+- Do not include React specific code (hooks) here.
+
+#### `src/lib/queries` (React Query)
+- Contains custom React Query hooks (`useQuery`, `useMutation`).
+- Wraps functions from `src/lib/api`.
+- Define and export Query Keys constants (e.g., `LOCATION_KEYS`).
+- Handle side effects like query invalidation in `onMutation` success callbacks.
+- Example structure:
+  ```typescript
+  export const ENTITY_KEYS = { all: ["entity"] as const };
+  export function useEntity() { ... }
+  export function useCreateEntityMutation() { ... }
+  ```

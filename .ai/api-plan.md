@@ -122,6 +122,24 @@
   ```
 - **Success:** `201 Created`
 
+**3. Update Client**
+- **Method:** `PUT`
+- **URL:** `/clients/:id`
+- **Description:** Updates an existing client details (US-021).
+- **Body:**
+  ```json
+  {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com",
+    "phone": "123456789"
+  }
+  ```
+- **Success:** `200 OK`
+- **Errors:**
+  - `404 Not Found` (client does not exist / not accessible)
+  - `422 Unprocessable Entity` (validation error; see Error Contract 4.2)
+
 ### 2.4. Bookings
 
 **1. List Bookings (Calendar Data)**
@@ -305,7 +323,40 @@
   - Database `GiST` index prevents inserting overlapping ranges for the same `spot_id`.
   - API returns `409 Conflict` if this constraint is violated.
 
-### 4.2. Business Logic Implementation
+### 4.2. Error Contract (HTTP status codes & payloads)
+This section defines the **minimum** error contract expected by the UI layer.
+
+#### Validation errors (422)
+- **Status:** `422 Unprocessable Entity`
+- **When:** invalid request body / domain validation that can be mapped to a field (including uniqueness constraints).
+- **Payload:**
+  ```json
+  {
+    "errors": [
+      { "path": ["field_name"], "message": "Human readable message", "code": "custom" }
+    ]
+  }
+  ```
+
+**Examples:**
+- Duplicate spot number on `POST /locations/:location_id/spots`:
+  - `422` with `errors[0].path = ["spot_number"]`
+- Invalid pricing date range (`end_date < start_date`) on `POST/PUT /locations/:location_id/pricing...`:
+  - `422` with paths `["start_date"]` / `["end_date"]`
+
+#### Domain conflicts (409)
+- **Status:** `409 Conflict`
+- **When:** domain constraint conflict that is not a simple field validation.
+- **Payload (minimum):**
+  ```json
+  { "error": "Human readable message" }
+  ```
+
+**Examples:**
+- Booking overlap (already defined above): `409`
+- Pricing exceptions overlap (if the system prevents overlapping ranges): `409`
+
+### 4.3. Business Logic Implementation
 - **Cost Calculation:**
   - Implemented via a dedicated endpoint (`/bookings/preview`) or Edge Function.
   - Logic: Iterates through each day of the range, checks for active `price_exceptions` (last created wins), applies % change to base `daily_rate`.

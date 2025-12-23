@@ -1,0 +1,119 @@
+---
+description: Guidelines for implementing forms with TanStack Form, including validation and error handling.
+globs: *.tsx
+alwaysApply: false
+---
+
+# TanStack Form Guidelines
+
+Use these guidelines when implementing forms using `@tanstack/react-form` to ensure consistent validation and error handling (both frontend and API).
+
+## Setup and Validation
+
+1.  **Schema Definition**: Use `zod` to define validation schemas.
+2.  **Form Initialization**: Initialize the form using `useForm` hook.
+    -   Pass the Zod schema to `validators.onChange` for real-time validation.
+    -   Define `defaultValues`.
+
+```typescript
+const mySchema = z.object({
+  fieldName: z.string().min(1, "Required field"),
+});
+
+const form = useForm({
+  defaultValues: { fieldName: "" },
+  validators: {
+    onChange: mySchema,
+  },
+  // ... onSubmit implementation
+});
+```
+
+## API Error Handling
+
+Handle server-side validation errors (typically 422 Unprocessable Entity) within the `onSubmit` handler by manually setting field metadata.
+
+1.  Wrap the submission logic in a `try/catch` block.
+2.  Check if the error is an `ApiError` with status `422`.
+3.  Use `form.setFieldMeta` to map the API error message to the specific form field.
+
+```typescript
+onSubmit: async ({ value }) => {
+  try {
+    await onSubmit(value);
+    // Handle success (e.g., close dialog, reset form)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 422) {
+      form.setFieldMeta("fieldName", (prev) => ({
+        ...prev,
+        errorMap: {
+          ...prev.errorMap,
+          onChange: {
+            message: (error.payload as { errors?: { message: string }[] })?.errors?.[0]?.message,
+          },
+        },
+      }));
+      return;
+    }
+    // Rethrow other errors
+    throw error;
+  }
+},
+```
+
+## Field Rendering
+
+Use the `form.Field` component to render inputs and display validation errors.
+
+1.  **Input Props**: Bind `id`, `name`, `value`, `onBlur`, and `onChange` from the `field` object.
+2.  **Error Display**:
+    -   Check `field.state.meta.errors`.
+    -   Map through errors and display the `message` property.
+    -   Style errors appropriately (e.g., text-red-500).
+
+```tsx
+<form.Field name="fieldName">
+  {(field) => (
+    <div className="space-y-2">
+      <Label htmlFor={field.name}>Label</Label>
+      <Input
+        id={field.name}
+        name={field.name}
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+      />
+      {field.state.meta.errors ? (
+        <p className="text-sm text-red-500">
+          {field.state.meta.errors
+            .map((e) => (e as { message: string }).message)
+            .join(", ")}
+        </p>
+      ) : null}
+    </div>
+  )}
+</form.Field>
+```
+
+## Form State & Life Cycle
+
+1.  **Dialog Integration**: Reset the form when the dialog opens or default values change.
+2.  **Submission State**: Use `form.Subscribe` to disable the submit button while submitting or if the form is invalid.
+
+```tsx
+// Reset on open
+useEffect(() => {
+  if (open) {
+    form.reset({ fieldName: defaultValues?.fieldName || "" });
+  }
+}, [open, defaultValues, form]);
+
+// Submit Button
+<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+  {([canSubmit, isSubmitting]) => (
+    <Button type="submit" disabled={!canSubmit || isSubmitting}>
+      {isSubmitting ? "Saving..." : "Save"}
+    </Button>
+  )}
+</form.Subscribe>
+```

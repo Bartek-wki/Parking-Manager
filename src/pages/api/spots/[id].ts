@@ -17,6 +17,13 @@ const uuidSchema = z.string().uuid();
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
   const { id: spotId } = params;
 
+  if (!spotId) {
+    return new Response(JSON.stringify({ error: "Spot ID is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   // Validate spotId
   const idValidation = uuidSchema.safeParse(spotId);
   if (!idValidation.success) {
@@ -33,37 +40,48 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     // In a real scenario, we would get the user ID from the session
     const userId = DEFAULT_USER_ID;
 
-    const updatedSpot = await updateSpot(locals.supabase, spotId!, parsedBody, userId);
+    const updatedSpot = await updateSpot(locals.supabase, spotId, parsedBody, userId);
 
     return new Response(JSON.stringify(updatedSpot), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ errors: error.errors }), {
-        status: 400,
+        status: 422,
         headers: { "Content-Type": "application/json" },
       });
     }
 
+    const errorCode =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: string }).code
+        : undefined;
+
     // Handle Supabase/Postgres errors
-    if (error.code) {
+    if (errorCode) {
       // Unique violation
-      if (error.code === "23505") {
+      if (errorCode === "23505") {
         return new Response(
           JSON.stringify({
-            error: "Spot number already exists in this location",
+            errors: [
+              {
+                path: ["spot_number"],
+                message: "Spot number already exists in this location",
+                code: "unique",
+              },
+            ],
           }),
           {
-            status: 400,
+            status: 422,
             headers: { "Content-Type": "application/json" },
           }
         );
       }
 
       // Handle "Row not found" (PGRST116 is returned by .single() when no rows match)
-      if (error.code === "PGRST116") {
+      if (errorCode === "PGRST116") {
         return new Response(JSON.stringify({ error: "Spot not found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
@@ -71,6 +89,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       }
     }
 
+    // eslint-disable-next-line no-console
     console.error("Error updating spot:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,

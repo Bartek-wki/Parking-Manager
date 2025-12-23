@@ -56,7 +56,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ errors: error.errors }), {
-        status: 400,
+        status: 422,
         headers: {
           "Content-Type": "application/json",
         },

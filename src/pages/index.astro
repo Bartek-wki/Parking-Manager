@@ -1,8 +1,8 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 ---
 
-<Layout title="Parking Manager">
+<AppLayout title="Parking Manager">
   <div class="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
     <h1 class="text-2xl font-bold">Witaj w Parking Manager</h1>
     <p class="text-muted-foreground">Wybierz parking z menu powyżej, aby rozpocząć.</p>
@@ -11,7 +11,7 @@ import Layout from "../layouts/Layout.astro";
   <script>
     const lastId = localStorage.getItem("lastVisitedLocationId");
     if (lastId) {
-      window.location.href = `/locations/${lastId}/settings`;
+      window.location.href = "/locations/" + lastId + "/settings";
     }
   </script>
-</Layout>
+</AppLayout>

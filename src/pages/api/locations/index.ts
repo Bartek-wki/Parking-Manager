@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ errors: error.errors }), {
-        status: 400,
+        status: 422,
         headers: {
           "Content-Type": "application/json",
         },

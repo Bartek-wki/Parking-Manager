@@ -37,7 +37,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 
   if (!queryValidation.success) {
     return new Response(JSON.stringify({ errors: queryValidation.error.errors }), {
-      status: 400,
+      status: 422,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -99,7 +99,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ errors: error.errors }), {
-        status: 400,
+        status: 422,
         headers: { "Content-Type": "application/json" },
       });
     }
@@ -109,9 +109,17 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       // Unique violation
       if (error.code === "23505") {
         return new Response(
-          JSON.stringify({ error: "Spot number already exists in this location" }),
+          JSON.stringify({
+            errors: [
+              {
+                path: ["spot_number"],
+                message: "Spot number already exists in this location",
+                code: "unique",
+              },
+            ],
+          }),
           {
-            status: 400,
+            status: 422,
             headers: { "Content-Type": "application/json" },
           }
         );

@@ -1,0 +1,16 @@
+---
+import AppLayout from "../../../layouts/AppLayout.astro";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/");
+}
+---
+
+<AppLayout title="Logi">
+  <div class="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+    <h1 class="text-2xl font-bold">Logi</h1>
+    <p class="text-muted-foreground">Widok logów dla lokalizacji {id} - w budowie.</p>
+  </div>
+</AppLayout>
