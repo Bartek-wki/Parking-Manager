@@ -20,10 +20,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const previewData = await calculatePreview(supabase, result.data);
 
     if (!previewData.available) {
-      return new Response(JSON.stringify({ message: "Spot is already booked for this period" }), {
-        status: 409,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ message: "Wybrane miejsce jest już zajęte w tym terminie" }),
+        {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     return new Response(JSON.stringify(previewData), {

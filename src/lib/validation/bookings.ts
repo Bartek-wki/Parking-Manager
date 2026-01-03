@@ -15,6 +15,7 @@ export const previewBookingSchema = z
     start_date: z.string().date(),
     end_date: z.string().date().optional(), // Nullable dla 'permanent'
     type: z.enum(["permanent", "periodic"]),
+    exclude_booking_id: z.string().uuid().optional(),
   })
   .refine(
     (data) => {
@@ -39,4 +40,9 @@ export const updateBookingSchema = z.object({
   status: z.enum(["aktywna", "zakonczona", "zalegla"]).optional(),
   start_date: z.string().date().optional(),
   end_date: z.string().date().optional(),
+  cost: z.number().optional(),
+  type: z.enum(["permanent", "periodic"]).optional(),
 });
+
+// Parametry ścieżki dla DELETE /bookings/:id
+export const deleteBookingIdSchema = z.string().uuid();

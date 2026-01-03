@@ -70,7 +70,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         headers: { "Content-Type": "application/json" },
       });
     } catch (err: any) {
-      if (err.message === "Spot is already booked for this period") {
+      if (err.message === "Wybrane miejsce jest już zajęte w tym terminie") {
         return new Response(JSON.stringify({ message: err.message }), {
           status: 409,
           headers: { "Content-Type": "application/json" },

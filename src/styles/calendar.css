@@ -1,0 +1,67 @@
+ @reference "./global.css";
+
+/* FullCalendar Customizations */
+
+.calendar-wrapper .fc {
+    --fc-border-color: var(--border);
+    --fc-button-text-color: var(--primary-foreground);
+    --fc-button-bg-color: var(--primary);
+    --fc-button-border-color: var(--primary);
+    --fc-button-hover-bg-color: var(--primary); /* Hover states might need explicit colors or adjustments */
+    --fc-button-hover-border-color: var(--primary);
+    --fc-button-active-bg-color: var(--primary);
+    --fc-button-active-border-color: var(--primary);
+    
+    --fc-event-bg-color: var(--primary);
+    --fc-event-border-color: var(--primary);
+    --fc-event-text-color: var(--primary-foreground);
+    --fc-today-bg-color: var(--accent);
+    --fc-page-bg-color: var(--background);
+    --fc-neutral-bg-color: var(--muted);
+    --fc-neutral-text-color: var(--muted-foreground);
+    --fc-list-event-hover-bg-color: var(--muted);
+}
+
+.calendar-wrapper .fc-theme-standard td, 
+.calendar-wrapper .fc-theme-standard th {
+    border-color: var(--border);
+}
+.calendar-wrapper .fc-col-header-cell-cushion {
+    @apply py-3 text-sm font-medium text-muted-foreground;
+}
+
+.calendar-wrapper .fc-daygrid-day-number {
+    @apply text-sm text-muted-foreground p-2;
+}
+
+.calendar-wrapper .fc-daygrid-day.fc-day-today {
+    @apply bg-accent/20;
+}
+
+.calendar-wrapper .fc-h-event {
+    @apply border-0;
+}
+
+.calendar-wrapper .fc-daygrid-event {
+    @apply rounded-sm shadow-sm m-[1px];
+}
+
+.calendar-wrapper .event-pernament-color {
+    background-color: #10b981 !important;
+}
+
+.calendar-wrapper .fc-popover {
+    @apply bg-popover border border-border rounded-md shadow-md;
+}
+
+.calendar-wrapper .fc-popover-header {
+    @apply bg-muted text-foreground font-semibold py-2 px-3;
+}
+
+.calendar-wrapper .fc-more-popover-misc {
+    @apply text-muted-foreground;
+}
+
+.calendar-wrapper .fc-toolbar {
+    display: none;
+  }

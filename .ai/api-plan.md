@@ -229,6 +229,12 @@
   ```
 - **Success:** `200 OK`
 
+**6. Delete Booking**
+- **Method:** `DELETE`
+- **URL:** `/bookings/:id`
+- **Description:** Deletes a booking and associated payment history (US-036). The spot becomes immediately available.
+- **Success:** `204 No Content`
+
 ### 2.5. Pricing Exceptions
 
 **1. List Exceptions**
@@ -368,4 +374,7 @@ This section defines the **minimum** error contract expected by the UI layer.
 - **Immutable Context:**
   - `user_id` is never passed in the body; it is injected automatically by Supabase based on the JWT.
   - `location_id` in `spots` and `bookings` ensures context isolation (US-097).
+- **Deletion Logic:**
+  - Deleting a booking automatically cascades to remove associated `payment_history` records.
+  - `email_logs` FK is set to NULL to preserve audit trail while allowing deletion.
 

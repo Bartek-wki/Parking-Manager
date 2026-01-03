@@ -180,6 +180,14 @@ Kryteria akceptacji:
 - Akcja wymaga potwierdzenia.
 - Status rezerwacji zmienia się na zakończona; kalendarz aktualizuje się w czasie rzeczywistym.
 
+US-036
+Tytuł: Usuwanie rezerwacji
+Opis: Jako właściciel chcę usuwać istniejące rezerwacje wraz z powiązaną historią płatności.
+Kryteria akceptacji:
+- Akcja wymaga potwierdzenia usunięcia.
+- Usunięcie rezerwacji kasuje również całą historię zmian statusu płatności dla tej rezerwacji.
+- Po usunięciu miejsce jest natychmiast dostępne; kalendarz aktualizuje się w czasie rzeczywistym.
+
 US-035
 Tytuł: Szczegóły rezerwacji z kalendarza
 Opis: Jako właściciel chcę kliknąć rezerwację w kalendarzu i zobaczyć szczegóły.

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "../../db/supabase.client";
 import type {
-  BookingDTO,
+  BookingCalendarDTO,
   BookingDetailDTO,
   CreateBookingCmd,
   PreviewBookingCmd,
@@ -11,10 +11,16 @@ import type {
 export async function listBookings(
   supabase: SupabaseClient,
   params: { locationId: string; startDate: string; endDate: string }
-): Promise<BookingDTO[]> {
+): Promise<BookingCalendarDTO[]> {
   const { data, error } = await supabase
     .from("bookings")
-    .select("id, spot_id, client_id, start_date, end_date, status, payment_status")
+    .select(
+      `
+      id, spot_id, client_id, start_date, end_date, status, payment_status, type,
+      client:clients!bookings_client_id_fkey(first_name, last_name),
+      spot:spots!bookings_spot_id_fkey(spot_number)
+    `
+    )
     .eq("location_id", params.locationId)
     .lte("start_date", params.endDate)
     .or(`end_date.is.null,end_date.gte.${params.startDate}`);
@@ -23,7 +29,7 @@ export async function listBookings(
     throw error;
   }
 
-  return data || [];
+  return (data as unknown as BookingCalendarDTO[]) || [];
 }
 
 export async function calculatePreview(
@@ -66,6 +72,16 @@ export async function calculatePreview(
   if (locationError) throw locationError;
   if (!location) throw new Error("Location not found");
 
+  // For permanent bookings, use monthly rate directly
+  if (cmd.type === "permanent") {
+    return {
+      available: true,
+      total_cost: location.monthly_rate,
+      calculation_details: [],
+    };
+  }
+
+  // For periodic bookings, calculate cost based on daily rates
   // Fetch Pricing Exceptions
   const exceptionQuery = supabase
     .from("price_exceptions")
@@ -134,7 +150,7 @@ export async function createBooking(
   });
 
   if (!preview.available) {
-    throw new Error("Spot is already booked for this period");
+    throw new Error("Wybrane miejsce jest już zajęte w tym terminie");
   }
 
   // 2. Create Booking
@@ -188,7 +204,7 @@ export async function updateBooking(
   id: string,
   cmd: UpdateBookingCmd
 ): Promise<void> {
-  const updates: any = { ...cmd };
+  const updates: Partial<UpdateBookingCmd> & { cost?: number | null } = { ...cmd };
 
   // If start_date or end_date changes, validate dates and recalculate cost
   if (cmd.start_date || cmd.end_date) {
@@ -221,13 +237,10 @@ export async function updateBooking(
     });
 
     if (!preview.available) {
-      throw new Error("Spot is already booked for this period");
+      throw new Error("Wybrane miejsce jest już zajęte w tym terminie");
     }
 
-    // Update cost only for periodic bookings
-    if (booking.type === "periodic") {
-      updates.cost = preview.total_cost;
-    }
+    updates.cost = preview.total_cost;
   }
 
   const { error } = await supabase.from("bookings").update(updates).eq("id", id);
@@ -245,4 +258,29 @@ export async function listPaymentHistoryByBookingId(supabase: SupabaseClient, bo
   if (error) throw error;
 
   return data || [];
+}
+
+export async function deleteBooking(supabase: SupabaseClient, id: string): Promise<void> {
+  // First check if booking exists
+  const { data: booking, error: fetchError } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("id", id)
+    .single();
+
+  if (fetchError) {
+    if (fetchError.code === "PGRST116") {
+      throw new Error("Booking not found");
+    }
+    throw fetchError;
+  }
+
+  if (!booking) {
+    throw new Error("Booking not found");
+  }
+
+  // Delete the booking (payment_history will be deleted automatically via CASCADE)
+  const { error } = await supabase.from("bookings").delete().eq("id", id);
+
+  if (error) throw error;
 }

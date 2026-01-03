@@ -94,8 +94,16 @@ export type UpdateClientCmd = Pick<
  */
 export type BookingDTO = Pick<
   Tables<"bookings">,
-  "id" | "spot_id" | "client_id" | "start_date" | "end_date" | "status" | "payment_status"
+  "id" | "spot_id" | "client_id" | "start_date" | "end_date" | "status" | "payment_status" | "type"
 >;
+
+/**
+ * Extended booking DTO with related data for Calendar display
+ */
+export type BookingCalendarDTO = BookingDTO & {
+  client: Pick<Tables<"clients">, "first_name" | "last_name"> | null;
+  spot: Pick<Tables<"spots">, "spot_number"> | null;
+};
 
 /**
  * Detailed booking view, usually including related client data.
@@ -122,7 +130,7 @@ export type CreateBookingCmd = Pick<
  */
 export type UpdateBookingCmd = Pick<
   Updates<"bookings">,
-  "payment_status" | "status" | "end_date" | "start_date"
+  "payment_status" | "status" | "end_date" | "start_date" | "cost" | "type"
 >;
 
 /**
@@ -180,3 +188,23 @@ export type PaymentHistoryDTO = Tables<"payment_history">;
  * Source: /logs/emails (GET)
  */
 export type EmailLogDTO = Tables<"email_logs">;
+
+// --- View Models ---
+
+// ViewModel compatible with FullCalendar Event Input
+export interface CalendarEventVM {
+  id: string;
+  title: string; // E.g., "Jan Kowalski (P1)"
+  start: string; // ISO String
+  end: string; // ISO String (FullCalendar requires end date + 1 day for 'all-day')
+  allDay: boolean; // true
+  extendedProps: {
+    spot_id: string; // snake_case to match DTO
+    client_id: string; // snake_case to match DTO
+    status: ReservationStatus;
+    payment_status: PaymentStatus;
+    is_ending_soon: boolean;
+    type: ReservationType;
+  };
+  classNames: string[]; // E.g., "bg-blue-500", "border-l-4 border-red-500"
+}

@@ -1,13 +1,12 @@
 import type { APIRoute } from "astro";
-import { updateBookingSchema } from "../../../lib/validation/bookings";
-import { getBookingById, updateBooking } from "../../../lib/services/bookings";
+import { getBookingById, updateBooking, deleteBooking } from "../../../lib/services/bookings";
+import { updateBookingSchema, deleteBookingIdSchema } from "../../../lib/validation/bookings";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
     const { id } = params;
-
     if (!id) {
       return new Response(JSON.stringify({ message: "Booking ID is required" }), {
         status: 400,
@@ -16,33 +15,23 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     const { supabase } = locals;
+    const booking = await getBookingById(supabase, id);
 
-    try {
-      const booking = await getBookingById(supabase, id);
-      if (!booking) {
-        // Should catch error usually, but just in case
-        return new Response(JSON.stringify({ message: "Booking not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify(booking), {
-        status: 200,
+    if (!booking) {
+      return new Response(JSON.stringify({ message: "Booking not found" }), {
+        status: 404,
         headers: { "Content-Type": "application/json" },
       });
-    } catch (err: any) {
-      // Supabase returns a specific error if .single() fails on 0 rows
-      if (err.code === "PGRST116") {
-        return new Response(JSON.stringify({ message: "Booking not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      throw err;
     }
-  } catch (error: any) {
+
+    return new Response(JSON.stringify(booking), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
     console.error("Error in GET /bookings/[id]:", error);
-    return new Response(JSON.stringify({ message: error.message || "Internal Server Error" }), {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return new Response(JSON.stringify({ message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -70,32 +59,64 @@ export const PATCH: APIRoute = async ({ request, params, locals }) => {
     }
 
     const { supabase } = locals;
+    await updateBooking(supabase, id, result.data);
 
-    try {
-      await updateBooking(supabase, id, result.data);
-    } catch (err: any) {
-      if (err.message === "End date cannot be before start date") {
-        return new Response(JSON.stringify({ message: err.message }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      if (err.message === "Spot is already booked for this period") {
-        return new Response(JSON.stringify({ message: err.message }), {
-          status: 409,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      throw err;
+    return new Response(null, {
+      status: 204,
+    });
+  } catch (error) {
+    console.error("Error in PATCH /bookings/[id]:", error);
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+
+    if (message === "Wybrane miejsce jest już zajęte w tym terminie") {
+      return new Response(JSON.stringify({ message }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      });
     }
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
+    return new Response(JSON.stringify({ message }), {
+      status: 500,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error: any) {
-    console.error("Error in PATCH /bookings/[id]:", error);
-    return new Response(JSON.stringify({ message: error.message || "Internal Server Error" }), {
+  }
+};
+
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  try {
+    const { id } = params;
+    if (!id) {
+      return new Response(JSON.stringify({ message: "Booking ID is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const idValidation = deleteBookingIdSchema.safeParse(id);
+    if (!idValidation.success) {
+      return new Response(JSON.stringify({ message: "Invalid booking ID format" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { supabase } = locals;
+    await deleteBooking(supabase, id);
+
+    return new Response(null, {
+      status: 204,
+    });
+  } catch (error) {
+    console.error("Error in DELETE /bookings/[id]:", error);
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+
+    if (message === "Booking not found") {
+      return new Response(JSON.stringify({ message }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
