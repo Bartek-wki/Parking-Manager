@@ -82,7 +82,7 @@ Celem jest redukcja pracy ręcznej, minimalizacja błędów w dostępności, prz
 ## 5. Historyjki użytkowników
 ID: US-001
 Tytuł: Rejestracja konta
-Opis: Jako nowy użytkownik chcę się zarejestrować, aby mieć dostęp do włanych lokalizacji (parkingów) i móc korzystać z dodawania rezerwacji.
+Opis: Jako nowy użytkownik chcę się zarejestrować, aby mieć dostęp do własnych lokalizacji (parkingów) i móc korzystać z dodawania rezerwacji.
 Kryteria akceptacji:
 - Formularz rejestracyjny zawiera pola na adres e-mail i hasło.
 - Po poprawnym wypełnieniu formularza i weryfikacji danych konto jest aktywowane.
@@ -95,6 +95,10 @@ Kryteria akceptacji:
 - Po podaniu prawidłowych danych logowania użytkownik zostaje przekierowany do kalendarza.
 - Błędne dane logowania wyświetlają komunikat o nieprawidłowych danych.
 - Dane dotyczące logowania przechowywane są w bezpieczny sposób.
+- Niezalogowany użytkownik jest przekierowywany na stronę logowania
+- Użytkownik może się wylogować poprzez przycisk umieszczony w sidebarze
+- Logowanie i rejestracja odbywają się na dedykowanych stronach
+- Odzyskiwanie hasła powinno być możliwe
 
 US-003
 Tytuł: Przełączanie kontekstu lokalizacji

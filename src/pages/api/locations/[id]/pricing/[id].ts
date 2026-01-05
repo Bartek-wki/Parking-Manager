@@ -5,7 +5,6 @@ import {
   deletePricingException,
 } from "../../../../../lib/services/pricing-exceptions";
 import { createPricingExceptionSchema } from "../../../../../lib/validation/pricing-exceptions";
-import { DEFAULT_USER_ID } from "@/db/supabase.client";
 
 export const prerender = false;
 
@@ -37,7 +36,11 @@ export const PUT: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    const userId = DEFAULT_USER_ID;
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const body = await request.json();
     const parsedBody = createPricingExceptionSchema.parse(body);

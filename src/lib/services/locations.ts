@@ -1,11 +1,14 @@
-import { DEFAULT_USER_ID, type SupabaseClient } from "../../db/supabase.client";
+import type { SupabaseClient } from "../../db/supabase.client";
 import type { CreateLocationCmd, UpdateLocationCmd, LocationDTO } from "../../types";
 
-export const getLocationList = async (supabase: SupabaseClient): Promise<LocationDTO[]> => {
+export const getLocationList = async (
+  supabase: SupabaseClient,
+  userId: string
+): Promise<LocationDTO[]> => {
   const { data, error } = await supabase
     .from("locations")
     .select("id, name, daily_rate, monthly_rate")
-    .eq("user_id", DEFAULT_USER_ID);
+    .eq("user_id", userId);
 
   if (error) {
     throw error;
@@ -16,11 +19,12 @@ export const getLocationList = async (supabase: SupabaseClient): Promise<Locatio
 
 export const createLocation = async (
   supabase: SupabaseClient,
-  location: CreateLocationCmd
+  location: CreateLocationCmd,
+  userId: string
 ): Promise<LocationDTO> => {
   const { data, error } = await supabase
     .from("locations")
-    .insert({ ...location, user_id: DEFAULT_USER_ID })
+    .insert({ ...location, user_id: userId })
     .select("id, name, daily_rate, monthly_rate")
     .single();
 
@@ -34,13 +38,14 @@ export const createLocation = async (
 export const updateLocation = async (
   supabase: SupabaseClient,
   id: string,
-  location: UpdateLocationCmd
+  location: UpdateLocationCmd,
+  userId: string
 ): Promise<LocationDTO> => {
   const { data, error } = await supabase
     .from("locations")
     .update(location)
     .eq("id", id)
-    .eq("user_id", DEFAULT_USER_ID)
+    .eq("user_id", userId)
     .select("id, name, daily_rate, monthly_rate")
     .single();
 

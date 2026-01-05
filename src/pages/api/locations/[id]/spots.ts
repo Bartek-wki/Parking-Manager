@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { listSpots, createSpot } from "../../../../lib/services/spots";
 import { createSpotSchema, listSpotsQuerySchema } from "../../../../lib/validation/spots";
-import { DEFAULT_USER_ID } from "../../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -43,14 +42,17 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   }
 
   try {
-    // In a real scenario, we would get the user ID from the session
-    const userId = DEFAULT_USER_ID;
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const spots = await listSpots(
       locals.supabase,
       locationId!,
-      queryValidation.data.active_only,
-      userId
+      userId,
+      queryValidation.data.active_only
     );
 
     return new Response(JSON.stringify(spots), {
@@ -87,8 +89,11 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     const body = await request.json();
     const parsedBody = createSpotSchema.parse(body);
 
-    // In a real scenario, we would get the user ID from the session
-    const userId = DEFAULT_USER_ID;
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const newSpot = await createSpot(locals.supabase, locationId!, parsedBody, userId);
 

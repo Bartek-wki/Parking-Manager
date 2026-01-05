@@ -1,11 +1,11 @@
-import { DEFAULT_USER_ID, type SupabaseClient } from "../../db/supabase.client";
+import type { SupabaseClient } from "../../db/supabase.client";
 import type { SpotDTO, CreateSpotCmd, UpdateSpotCmd } from "../../types";
 
 export const listSpots = async (
   supabase: SupabaseClient,
   locationId: string,
-  activeOnly?: boolean,
-  userId: string = DEFAULT_USER_ID
+  userId: string,
+  activeOnly?: boolean
 ): Promise<SpotDTO[]> => {
   let query = supabase
     .from("spots")
@@ -30,7 +30,7 @@ export const createSpot = async (
   supabase: SupabaseClient,
   locationId: string,
   spot: CreateSpotCmd,
-  userId: string = DEFAULT_USER_ID
+  userId: string
 ): Promise<SpotDTO> => {
   const { data, error } = await supabase
     .from("spots")
@@ -38,7 +38,7 @@ export const createSpot = async (
       ...spot,
       location_id: locationId,
       user_id: userId,
-      is_active: true, // Default to true as per typical flow, or let DB default? Plan implies payload doesn't have it.
+      is_active: true,
     })
     .select("id, spot_number, is_active")
     .single();
@@ -54,7 +54,7 @@ export const updateSpot = async (
   supabase: SupabaseClient,
   id: string,
   spot: UpdateSpotCmd,
-  userId: string = DEFAULT_USER_ID
+  userId: string
 ): Promise<SpotDTO> => {
   const { data, error } = await supabase
     .from("spots")

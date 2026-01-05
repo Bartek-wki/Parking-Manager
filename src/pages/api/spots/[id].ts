@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { updateSpot } from "../../../lib/services/spots";
 import { updateSpotSchema } from "../../../lib/validation/spots";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -37,8 +36,11 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     const body = await request.json();
     const parsedBody = updateSpotSchema.parse(body);
 
-    // In a real scenario, we would get the user ID from the session
-    const userId = DEFAULT_USER_ID;
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const updatedSpot = await updateSpot(locals.supabase, spotId, parsedBody, userId);
 

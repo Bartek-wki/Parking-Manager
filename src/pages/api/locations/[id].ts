@@ -37,7 +37,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const updatedLocation = await updateLocation(locals.supabase, id, parsedBody);
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const updatedLocation = await updateLocation(locals.supabase, id, parsedBody, locals.user.id);
 
     return new Response(JSON.stringify(updatedLocation), {
       status: 200,

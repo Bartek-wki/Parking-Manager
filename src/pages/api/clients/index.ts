@@ -2,19 +2,16 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { listClients, createClient } from "../../../lib/services/clients";
 import { createClientSchema } from "../../../lib/validation/clients";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ locals, url }) => {
   try {
-    // Plan: Get user from locals
-    const {
-      data: { user },
-    } = await locals.supabase.auth.getUser();
-
-    // For current development state (matching locations.ts), we fallback to DEFAULT_USER_ID
-    const userId = user?.id || DEFAULT_USER_ID;
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const search = url.searchParams.get("search");
     const clients = await listClients(locals.supabase, userId, search);
@@ -38,10 +35,11 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const {
-      data: { user },
-    } = await locals.supabase.auth.getUser();
-    const userId = user?.id || DEFAULT_USER_ID; // Fallback for dev
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const body = await request.json();
     const parsedBody = createClientSchema.parse(body);

@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { updateClient } from "../../../lib/services/clients";
 import { updateClientSchema } from "../../../lib/validation/clients";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -23,12 +22,11 @@ export const PUT: APIRoute = async ({ request, params, locals }) => {
       });
     }
 
-    const {
-      data: { user },
-    } = await locals.supabase.auth.getUser();
-    // Fallback for dev environment if user is not authenticated
-    // In strict mode, we would return 401 here if !user
-    const userId = user?.id || DEFAULT_USER_ID;
+    const { user } = locals;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    const userId = user.id;
 
     const body = await request.json();
     const parsedBody = updateClientSchema.parse(body);

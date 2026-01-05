@@ -10,6 +10,7 @@ interface Props {
 
 const { title = "Parking Manager" } = Astro.props;
 const { pathname } = Astro.url;
+const { user } = Astro.locals;
 
 // Extract locationId from URL if present
 const segments = pathname.split("/").filter(Boolean);
@@ -44,6 +45,7 @@ const breadcrumbs = segments.map((segment, index) => {
       currentLocationId={currentLocationId}
       currentPath={pathname}
       breadcrumbs={breadcrumbs}
+      userEmail={user?.email}
     >
       <slot />
     </AppShell>

@@ -6,8 +6,15 @@ import { createLocationSchema } from "../../../lib/validation/locations";
 export const prerender = false;
 
 export const GET: APIRoute = async ({ locals }) => {
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const locations = await getLocationList(locals.supabase);
+    const locations = await getLocationList(locals.supabase, locals.user.id);
     return new Response(JSON.stringify(locations), {
       status: 200,
       headers: {
@@ -26,11 +33,18 @@ export const GET: APIRoute = async ({ locals }) => {
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const body = await request.json();
     const parsedBody = createLocationSchema.parse(body);
 
-    const newLocation = await createLocation(locals.supabase, parsedBody);
+    const newLocation = await createLocation(locals.supabase, parsedBody, locals.user.id);
 
     return new Response(JSON.stringify(newLocation), {
       status: 201,

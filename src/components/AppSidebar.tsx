@@ -26,9 +26,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export function AppSidebar({
   currentLocationId,
   currentPath,
+  userEmail,
 }: {
   currentLocationId?: string;
   currentPath?: string;
+  userEmail?: string;
 }) {
   // Logic for context menu items
   const contextItems = currentLocationId
@@ -124,7 +126,7 @@ export function AppSidebar({
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">Użytkownik</span>
-                    <span className="truncate text-xs">user@example.com</span>
+                    <span className="truncate text-xs">{userEmail}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -135,7 +137,13 @@ export function AppSidebar({
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    localStorage.removeItem("lastVisitedLocationId");
+                    window.location.href = "/login";
+                  }}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Wyloguj
                 </DropdownMenuItem>
