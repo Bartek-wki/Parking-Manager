@@ -10,6 +10,12 @@ Frontend - Astro z React dla komponentów interaktywnych:
 Backend i Bazadanych:
 Supabase
 
+Testowanie:
+- Vitest (testy jednostkowe i integracyjne)
+- React Testing Library (testy komponentów React)
+- Playwright (testy E2E)
+- Supabase CLI (testowanie reguł bezpieczeństwa)
+
 CI/CD i Hosting:
 - Github Actions
 - DigitalOcean

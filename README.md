@@ -30,6 +30,7 @@ This repository contains the project scaffold, product requirements (PRD) and in
 - UI: Tailwind CSS 4 + shadcn/ui
 - Runtime / Hosting: Node.js (see `.nvmrc`) — Node 22.14.0 is used in this repo
 - Backend / Database: Supabase (project integrates with Supabase in planned architecture)
+- Testing: Vitest (unit & integration tests), React Testing Library (component testing), Playwright (E2E tests)
 - CI/CD & Hosting (planned): GitHub Actions, DigitalOcean
 - Key dependencies (from package.json): `astro`, `@astrojs/react`, `react`, `react-dom`, `tailwindcss`, `lucide-react`, `clsx`
 
